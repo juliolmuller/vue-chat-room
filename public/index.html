@@ -34,14 +34,25 @@
             </div>
 
             <ul class="list-group list-group-flush">
-              <li
-                class="list-group-item"
-                v-for="message in messages"
-                :key="message"
-              >{{ message }}</li>
+              <li class="list-group-item py-1" v-for="message in messages" :key="message">
+                <div class="d-flex flex-column" :class="{ 'align-items-end': message.mine }">
+                    <div class="w-75" :class="{ 'text-right': message.mine }">
+                      <span class="font-italic text-black-50" v-if="!message.mine">
+                        {{ message.sender }}:
+                      </span>
+                      {{ message.text }}
+                    </div>
+                    <!-- <div class="font-italic text-muted" style="font-size: 0.6rem;">
+                      at {{ message.time }}
+                    </div> -->
+                </div>
+              </li>
             </ul>
 
             <div class="card-footer">
+              <small class="float-right text-white mb-1" v-if="userTyping">
+                {{ userTyping }} is typing...
+              </small>
               <form @submit.prevent="sendMessage">
                 <div class="input-group">
                   <input
@@ -51,8 +62,8 @@
                     v-model="newMessage"
                     autofocus
                   />
-                  <div class="input-group-append" v-if="newMessage">
-                    <button type="submit" class="btn btn-primary">
+                  <div class="input-group-append" v-show="newMessage">
+                    <button type="submit" class="btn btn-primary" :disabled="!newMessage">
                       <i class="far fa-paper-plane">
                         <span class="sr-only">Send</span>
                       </i>
@@ -69,28 +80,53 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      var socket = io()
-
       new Vue({
         el: '#app',
 
         data: {
+          socket: io(),
+          userName: 'Josnei',
           newMessage: '',
           messages: [],
+          userTyping: '',
         },
 
         methods: {
           sendMessage: function () {
-            socket.emit('chat-message', this.newMessage)
+            const message = {
+              sender: this.userName,
+              text: this.newMessage,
+              time: new Date(),
+              mine: true,
+            }
 
-            this.messages.push(this.newMessage)
             this.newMessage = ''
-          }
+            this.messages.push(message)
+
+            this.socket.emit('chat-message', message)
+          },
         },
 
-        mounted: function () {
-          socket.on('chat-message', function (data) {
+        watch: {
+          newMessage: function (value) {
+            value
+              ? this.socket.emit('typing', { sender: this.userName })
+              : this.socket.emit('typing-stop')
+          },
+        },
+
+        created: function () {
+          this.socket.on('chat-message', function (data) {
+            data.mine = false
             this.messages.push(data)
+          }.bind(this))
+
+          this.socket.on('typing', function (data) {
+            this.userTyping = data.sender
+          }.bind(this))
+
+          this.socket.on('typing-stop', function () {
+            this.userTyping = ''
           }.bind(this))
         },
       })

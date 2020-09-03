@@ -19,6 +19,14 @@ io.on('connection', (socket) => {
   socket.on('chat-message', (data) => {
     socket.broadcast.emit('chat-message', data)
   })
+
+  socket.on('typing', (data) => {
+    socket.broadcast.emit('typing', data)
+  })
+
+  socket.on('typing-stop', (data) => {
+    socket.broadcast.emit('typing-stop', data)
+  })
 })
 
 http.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`))
