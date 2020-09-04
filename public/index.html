@@ -50,8 +50,9 @@
             </div>
           </form>
           <div class="card bg-info d-none" :class="online ? 'd-block' : 'd-none'">
-            <div class="card-header text-white">
-              {{ userName }}
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h2 class="text-white">{{ userName }}</h2>
+              <small class="text-white-50">{{ connections }} users online</small>
             </div>
 
             <ul class="list-group list-group-flush">
@@ -114,6 +115,7 @@
         data: {
           socket: io(),
           online: false,
+          connections: 0,
           userName: '',
           newMessage: '',
           messages: [],
@@ -169,6 +171,10 @@
             if (this.online) {
               this.messages.push({ sender: data, type: -1 })
             }
+          }.bind(this))
+
+          this.socket.on('connections', function (data) {
+            this.connections = data
           }.bind(this))
 
           this.socket.on('chat-message', function (data) {

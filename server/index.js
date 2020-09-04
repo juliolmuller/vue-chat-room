@@ -17,10 +17,16 @@ io.on('connection', (socket) => {
   })
 
   socket.on('joined', (data) => {
+    const connections = Object.keys(io.sockets.connected).length
+
     socket.broadcast.emit('joined', data)
+    io.emit('connections', connections)
   })
 
   socket.on('left', (data) => {
+    const connections = Object.keys(io.sockets.connected).length - 1
+
+    io.emit('connections', connections)
     socket.broadcast.emit('left', data)
   })
 
