@@ -34,7 +34,7 @@
             </div>
 
             <ul class="list-group list-group-flush">
-              <li class="list-group-item py-1" v-for="message in messages" :key="message">
+              <li class="list-group-item py-1" v-for="message in messages" :key="message.id">
                 <div class="d-flex flex-column" :class="{ 'align-items-end': message.mine }">
                     <div class="w-75" :class="{ 'text-right': message.mine }">
                       <span class="font-italic text-black-50" v-if="!message.mine">
@@ -42,15 +42,15 @@
                       </span>
                       {{ message.text }}
                     </div>
-                    <!-- <div class="font-italic text-muted" style="font-size: 0.6rem;">
-                      at {{ message.time }}
-                    </div> -->
+                    <div class="font-italic text-muted" style="font-size: 0.5rem;">
+                      {{ displayTime(message.time) }}
+                    </div>
                 </div>
               </li>
             </ul>
 
             <div class="card-footer">
-              <small class="float-right text-white mb-1" v-if="userTyping">
+              <small class="float-left text-white mb-1" v-if="userTyping">
                 {{ userTyping }} is typing...
               </small>
               <form @submit.prevent="sendMessage">
@@ -64,9 +64,8 @@
                   />
                   <div class="input-group-append" v-show="newMessage">
                     <button type="submit" class="btn btn-primary" :disabled="!newMessage">
-                      <i class="far fa-paper-plane">
-                        <span class="sr-only">Send</span>
-                      </i>
+                      <i class="far fa-paper-plane"></i>
+                      <span class="sr-only">Send</span>
                     </button>
                   </div>
                 </div>
@@ -77,7 +76,8 @@
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js" integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg==" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
       new Vue({
@@ -91,12 +91,22 @@
           userTyping: '',
         },
 
+        watch: {
+          newMessage: function (value) {
+            value
+              ? this.socket.emit('typing', { sender: this.userName })
+              : this.socket.emit('typing-stop')
+          },
+        },
+
         methods: {
           sendMessage: function () {
+            const now = moment().valueOf()
             const message = {
+              id: now,
               sender: this.userName,
               text: this.newMessage,
-              time: new Date(),
+              time: now,
               mine: true,
             }
 
@@ -105,13 +115,10 @@
 
             this.socket.emit('chat-message', message)
           },
-        },
-
-        watch: {
-          newMessage: function (value) {
-            value
-              ? this.socket.emit('typing', { sender: this.userName })
-              : this.socket.emit('typing-stop')
+          displayTime: function(timestamp) {
+            return moment(timestamp).calendar(null, {
+              sameElse : 'L, [at] LT',
+            })
           },
         },
 
