@@ -16,6 +16,14 @@ io.on('connection', (socket) => {
     console.log('<<< A client disconnected')
   })
 
+  socket.on('joined', (data) => {
+    socket.broadcast.emit('joined', data)
+  })
+
+  socket.on('left', (data) => {
+    socket.broadcast.emit('left', data)
+  })
+
   socket.on('chat-message', (data) => {
     socket.broadcast.emit('chat-message', data)
   })

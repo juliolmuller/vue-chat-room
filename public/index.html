@@ -28,10 +28,12 @@
       </h1>
       <div class="row">
         <div class="col-12 col-md-6 offset-md-3">
-          <form class="card bg-secondary" @submit.prevent="startChat" v-if="!isChatting">
+          <form class="card bg-secondary" @submit.prevent="startChat" v-if="!online">
             <div class="card-footer">
               <div class="form-group">
-                <label for="name-input">Type the name you want people to call you:</label>
+                <label for="name-input" class="text-white">
+                  Type the name you want people to call you:
+                </label>
                 <div class="input-group">
                   <input
                     type="text"
@@ -47,23 +49,31 @@
               </div>
             </div>
           </form>
-          <div class="card bg-info d-none" :class="isChatting ? 'd-block' : 'd-none'">
+          <div class="card bg-info d-none" :class="online ? 'd-block' : 'd-none'">
             <div class="card-header text-white">
               {{ userName }}
             </div>
 
             <ul class="list-group list-group-flush">
               <li class="list-group-item py-1" v-for="message in messages" :key="message.id">
-                <div class="d-flex flex-column" :class="{ 'align-items-end': message.mine }">
-                    <div class="w-75" :class="{ 'text-right': message.mine }">
-                      <span class="font-italic text-black-50" v-if="!message.mine">
-                        {{ message.sender }}:
-                      </span>
-                      {{ message.text }}
-                    </div>
-                    <div class="font-italic text-muted" style="font-size: 0.5rem;">
-                      {{ displayTime(message.time) }}
-                    </div>
+                <div
+                  class="d-flex flex-column"
+                  :class="{
+                    'align-items-center': message.type <= 0,
+                    'align-items-end': message.type === 1,
+                  }"
+                >
+                  <div class="w-75" :class="{ 'text-right': message.type === 1 }" v-if="message.type >= 1">
+                    <span class="font-italic text-black-50" v-if="message.type === 2">
+                      {{ message.sender }}:
+                    </span>
+                    {{ message.text }}
+                  </div>
+                  <div class="font-italic text-muted" style="font-size: 0.5rem;">
+                    <span v-if="message.type === -1">{{ message.sender }} left the room</span>
+                    <span v-else-if="message.type === 0">{{ message.sender }} joined the room</span>
+                    <span v-else>{{ displayTime(message.time) }}</span>
+                  </div>
                 </div>
               </li>
             </ul>
@@ -103,7 +113,7 @@
 
         data: {
           socket: io(),
-          isChatting: false,
+          online: false,
           userName: '',
           newMessage: '',
           messages: [],
@@ -120,7 +130,12 @@
 
         methods: {
           startChat: function () {
-            this.isChatting = true
+            this.online = true
+            this.socket.emit('joined', this.userName)
+
+            window.onbeforeunload = function () {
+              this.socket.emit('left', this.userName)
+            }.bind(this)
           },
           sendMessage: function () {
             const now = moment().valueOf()
@@ -129,12 +144,11 @@
               sender: this.userName,
               text: this.newMessage,
               time: now,
-              mine: true,
+              type: 1,
             }
 
             this.newMessage = ''
             this.messages.push(message)
-
             this.socket.emit('chat-message', message)
           },
           displayTime: function(timestamp) {
@@ -145,17 +159,35 @@
         },
 
         created: function () {
+          this.socket.on('joined', function (data) {
+            if (this.online) {
+              this.messages.push({ sender: data, type: 0 })
+            }
+          }.bind(this))
+
+          this.socket.on('left', function (data) {
+            if (this.online) {
+              this.messages.push({ sender: data, type: -1 })
+            }
+          }.bind(this))
+
           this.socket.on('chat-message', function (data) {
-            data.mine = false
-            this.messages.push(data)
+            if (this.online) {
+              data.type = 2
+              this.messages.push(data)
+            }
           }.bind(this))
 
           this.socket.on('typing', function (data) {
-            this.userTyping = data.sender
+            if (this.online) {
+              this.userTyping = data.sender
+            }
           }.bind(this))
 
           this.socket.on('typing-stop', function () {
-            this.userTyping = ''
+            if (this.online) {
+              this.userTyping = ''
+            }
           }.bind(this))
         },
       })
