@@ -1,27 +1,21 @@
 {
   "name": "vue-chat-room",
-  "version": "1.0.0",
-  "description": "Simple application to implement WebSocket using Socket.io and Vue.js.",
-  "author": "Julio L. Muller",
+  "version": "1.0.1",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/juliolmuller/vue-chat-room/issues"
+  "author": {
+    "name": "Julio L. M",
+    "url": "https://juliolmuller.github.io/"
   },
-  "homepage": "https://github.com/juliolmuller/vue-chat-room#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/juliolmuller/vue-chat-room.git"
-  },
+  "main": "server/index.js",
   "scripts": {
     "start": "node .",
     "watch": "nodemon ."
   },
-  "main": "server/index.js",
   "dependencies": {
     "express": "^4.17.1",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.6"
   }
 }
