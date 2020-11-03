@@ -1,5 +1,5 @@
 <h1 align="center">
-  :love_letter: Vuex Chat Room
+  :love_letter: Vue Chat Room
 </h1>
 
 <p align="center">
