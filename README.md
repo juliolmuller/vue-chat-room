@@ -53,9 +53,9 @@ Simple application developed to learn the **Web Socket** with the `socket.io` ab
 Make sure to have **Node.js 10+** installed in your machine and its **npm** available in the command line, then use the following routines:
 
 ```bash
-$ npm install   # Download dependencies
-$ npm run watch # Run development server
-$ npm start     # Run production server
+$ npm install     # Download dependencies
+$ npm run watch   # Run development server
+$ npm start       # Run production server
 ```
 
 ## :zap: Features
