@@ -1,6 +1,6 @@
 {
   "name": "vue-chat-room",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "license": "MIT",
   "author": "Julio L. Muller",
@@ -11,12 +11,12 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "socket.io": "^2.3.0"
+    "socket.io": "^3.0.5"
   },
   "devDependencies": {
     "@lacussoft/eslint-config": "^1.0.1",
-    "eslint": "^7.16.0",
-    "nodemon": "^2.0.6"
+    "eslint": "^7.17.0",
+    "nodemon": "^2.0.7"
   },
   "eslintConfig": {
     "root": true,
