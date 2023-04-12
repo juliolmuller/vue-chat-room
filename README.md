@@ -25,8 +25,6 @@
 
 Simple application developed to learn the **Web Socket** with the `socket.io` abstraction. Completely based on Bitfumes's [video lesson available in YouTube](https://www.youtube.com/watch?v=wYqzv_oxyl8&t=127s).
 
-[Check out the application running!](https://vue-chat-room.herokuapp.com/)
-
 ## :trophy: Lessons Learned
 
 - [Socket.io](https://socket.io/);
